@@ -4,12 +4,16 @@ __author__ = 'ITI BANSAL'
 This file handles data creation, plotting and transformations
 '''
 import glob
-import h5py
-import numpy as np
-import matplotlib.pyplot as plt
 import cv2
+import h5py
+import matplotlib.pyplot as plt
+import numpy as np
+import re
 import transform as t
-
+import tensorflow as tf
+from keras.applications.vgg16 import VGG16
+from sklearn.preprocessing import LabelEncoder
+import sys
 
 def create_dataset(path):
     '''
@@ -20,8 +24,11 @@ def create_dataset(path):
     hdf5_path = 'training_data.hdf5'
     train_shape = (len(addrs), 224, 224, 3)
     hdf5_file = h5py.File(hdf5_path, mode='w')
-    print(addrs)
+    labels = [re.split("_", addr)[2] for addr in addrs]
     hdf5_file.create_dataset("train_img", train_shape, np.int8)
+    dt = h5py.special_dtype(vlen=str)
+    hdf5_file.create_dataset("train_labels", (len(addrs),), dtype=dt)
+    hdf5_file["train_labels"][...] = labels
     for i in range(len(addrs)):
         fname = addrs[i]
         img = cv2.imread(fname)
@@ -39,21 +46,32 @@ def plot_image(img):
     plt.imshow(img)
     plt.show()
 
-def transform_img(path):
+def load_dataset(path):
     '''
-    This function transforms the original image files
+    This method loads the dataset
     :param path: path of original hdf5 file
     :return: path of transformed hdf5 file
     '''
     hdf5_file = h5py.File(path, "r")
+    train_x_orig = np.array(hdf5_file["train_img"][:])
+    train_y_orig = np.array(hdf5_file["train_labels"][:])
+    # train_set_y_orig = train_set_y_orig.reshape((1, train_set_y_orig.shape[0]))
+    # Y_train = convert_to_one_hot(train_set_y_orig, 6).T
+    labelencoder = LabelEncoder()
+    train_y_orig = labelencoder.fit_transform(train_y_orig)
+    train_y_orig = train_y_orig.reshape((1, train_y_orig.shape[0]))
+    y_orig = convert_to_one_hot(train_y_orig, 36).T
+    x_orig = train_x_orig / 255
+    return x_orig,y_orig
 
+def convert_to_one_hot(Y, C):
+    Y = np.eye(C)[Y.reshape(-1)].T
+    return Y
 
 if __name__ == '__main__':
     path = "/Users/itibansal/Downloads/handgesturedataset_part3/*.png"
-    #create_dataset(path)
+    create_dataset(path)
     path='training_data.hdf5'
-    hdf5_file = h5py.File(path, "r")
-    img = hdf5_file["train_img"][105, :]
-    #image = Image.open("/Users/itibansal/Downloads/handgesturedataset_part3/hand3_q_dif_seg_4_cropped.png")
-    plot_image(img)
-    plot_image(t.hflip(img))
+    load_dataset(path)
+    print('\n'.join(sys.path))
+
