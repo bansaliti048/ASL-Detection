@@ -1,4 +1,10 @@
 __author__ = 'ITI BANSAL'
+'''
+This program detects the American Sign Language from images using Residual Neural Networks (Convolution Neural Networks) 
+The file accepts training data and test data as command line parameters in hdf5 format 
+It gives several options of image pre-processing which can be selected by the user on execution
+Usage: python3 ResNet.py train_data.hdf5 test_data.hdf5
+'''
 
 import numpy as np
 from keras import layers
@@ -9,7 +15,6 @@ from sklearn.preprocessing import LabelEncoder
 from keras.preprocessing.image import ImageDataGenerator
 from keras import backend as K
 import sys
-import cv2
 import h5py
 
 
@@ -317,7 +322,7 @@ if __name__ == '__main__':
         print("Please enter the image processing technique to use:"
               "1) 1 for no preprocessing"
               "2) 2 for centering the images"
-              "3) 3 for rescaling the images from [0-255] to [0-1]")
+              "3) 3 for rescaling the images from [0-255] to [0-1]"
         option = input("Please enter the option: ")
         if option=="1":
             predict(train_data,test_data)
