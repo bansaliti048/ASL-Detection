@@ -2,6 +2,9 @@ __author__ = 'ITI BANSAL'
 '''
 This program detects the American Sign Language from images using Residual Neural Networks (Convolution Neural Networks) 
 The file accepts training data and test data as command line parameters in hdf5 format 
+Data files can be downloaded from here: 
+train_data.hdf5: https://drive.google.com/open?id=1LlFXPyFuANVc5QcsKGWtNi61uyGhBe1o
+test_data.hdf5: https://drive.google.com/open?id=1UT-0vKQpNyF8c1BJn1Z8ovq7LSKPIViW
 It gives several options of image pre-processing which can be selected by the user on execution
 Usage: python3 ResNet.py train_data.hdf5 test_data.hdf5
 '''
@@ -323,6 +326,7 @@ if __name__ == '__main__':
               "1) 1 for no preprocessing"
               "2) 2 for centering the images"
               "3) 3 for rescaling the images from [0-255] to [0-1]"
+              "4) 4 for randomly adjust brightness of images")
         option = input("Please enter the option: ")
         if option=="1":
             predict(train_data,test_data)
