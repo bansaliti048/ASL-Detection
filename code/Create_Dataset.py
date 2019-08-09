@@ -11,7 +11,6 @@ import numpy as np
 import re
 import transform as t
 import tensorflow as tf
-from keras.applications.vgg16 import VGG16
 from sklearn.preprocessing import LabelEncoder
 import sys
 
