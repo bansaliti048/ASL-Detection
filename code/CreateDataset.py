@@ -40,6 +40,72 @@ def create_dataset(path):
         #hdf5_file["test_img"][(i+1), ...] = img[None]
     hdf5_file.close()
 
+def create_flipped_dataset(path):
+    '''
+    This function creates hdf5 file from images
+    :param path: directory containing input images
+    '''
+    addrs = glob.glob(path)
+    hdf5_path = 'train_data_flipped.hdf5'
+    train_shape = (len(addrs)*2, 224, 224, 3)
+    hdf5_file = h5py.File(hdf5_path, mode='w')
+    labels = [re.split("_", addr)[2] for addr in addrs]
+    hdf5_file.create_dataset("train_img", train_shape, np.int8)
+    dt = h5py.special_dtype(vlen=str)
+    hdf5_file.create_dataset("train_labels", (len(addrs)*2,), dtype=dt)
+    hdf5_file["train_labels"][...] = np.repeat(labels, 2)
+    #hdf5_file["test_labels"][...]=labels
+    j=0
+    for i in range(0,len(addrs)):
+        fname = addrs[i]
+        img = cv2.imread(fname)
+        pad=max(img.shape[0],img.shape[1])-min(img.shape[0],img.shape[1])
+        img = cv2.copyMakeBorder(img,0,0,pad//2,pad//2,cv2.BORDER_CONSTANT,value=[0,0,0])
+        img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        hdf5_file["train_img"][j, ...] = img[None]
+        img = cv2.flip(img, 1 )
+        hdf5_file["train_img"][(j+1), ...] = img[None]
+        j=j+2
+    hdf5_file.close()
+
+def create_bright_dataset(path):
+    '''
+    This function creates hdf5 file from images
+    :param path: directory containing input images
+    '''
+    addrs = glob.glob(path)
+    hdf5_path = 'train_data_bright.hdf5'
+    train_shape = (len(addrs)*2, 224, 224, 3)
+    hdf5_file = h5py.File(hdf5_path, mode='w')
+    labels = [re.split("_", addr)[2] for addr in addrs]
+    hdf5_file.create_dataset("train_img", train_shape, np.int8)
+    dt = h5py.special_dtype(vlen=str)
+    hdf5_file.create_dataset("train_labels", (len(addrs)*2,), dtype=dt)
+    hdf5_file["train_labels"][...] = np.repeat(labels, 2)
+    #hdf5_file["test_labels"][...]=labels
+    j=0
+    for i in range(0,len(addrs)):
+        fname = addrs[i]
+        img = cv2.imread(fname)
+        pad=max(img.shape[0],img.shape[1])-min(img.shape[0],img.shape[1])
+        img = cv2.copyMakeBorder(img,0,0,pad//2,pad//2,cv2.BORDER_CONSTANT,value=[0,0,0])
+        img = cv2.resize(img, (224, 224), interpolation=cv2.INTER_CUBIC)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        hdf5_file["train_img"][j, ...] = img[None]
+        samples = expand_dims(img, 0)
+        # create image data augmentation generator
+        datagen = ImageDataGenerator(brightness_range=[0.2,1.0])
+        it = datagen.flow(samples, batch_size=1)
+        # generate samples and plot
+        # generate batch of images
+        batch = it.next()
+        # convert to unsigned integers for viewing
+        img = batch[0].astype('uint8')
+        hdf5_file["train_img"][(j+1), ...] = img[None]
+        j=j+2
+    hdf5_file.close()
+    
 def plot_image(img):
     '''
     This creates plots of images
