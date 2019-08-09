@@ -28,7 +28,6 @@ def create_dataset(path):
     hdf5_file.create_dataset("train_img", train_shape, np.int8)
     dt = h5py.special_dtype(vlen=str)
     hdf5_file.create_dataset("train_labels", (len(addrs),), dtype=dt)
-    #hdf5_file["test_labels"][...] = np.repeat(labels, 2)
     hdf5_file["train_labels"][...]=labels
     for i in range(0,len(addrs)):
         fname = addrs[i]
